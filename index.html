@@ -1,11 +1,13 @@
 <html>
-    <head> <title> Erc 20 Dapp</title></head>
+    <head> <title> Erc 20 Dapp</title>
+    </head>
     <body>
+         <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+         <script type="module" src="app.js"></script>
+    
 <button id="connectBtn">Connect Wallet</button>
 <p id="account"> </p>
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
-<script type="module" src="app.js"></script>
 <p> Name: <span id="tokenName"></span> </p>
 <p>Symbol: <span id="tokenSymbol"></span> </p>
 <P>Decimals: <span id="tokenDecimals"></span> </P>
@@ -22,5 +24,9 @@
 <button id="allowanceBtn">Check Allowance</button>
 <p id="allowance"></p>
 
+<input id="_from" placeholder="From">
+<input id="_to" placeholder="TO">
+<input id="_amount" placeholder="Amount">
+<button id="transferFromBtn">Transfer</button>
 </body>
 </html>
