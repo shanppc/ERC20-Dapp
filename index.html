@@ -1,0 +1,26 @@
+<html>
+    <head> <title> Erc 20 Dapp</title></head>
+    <body>
+<button id="connectBtn">Connect Wallet</button>
+<p id="account"> </p>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+<script type="module" src="app.js"></script>
+<p> Name: <span id="tokenName"></span> </p>
+<p>Symbol: <span id="tokenSymbol"></span> </p>
+<P>Decimals: <span id="tokenDecimals"></span> </P>
+<P>Balance: <span id= "balance"></span> </P>
+<input id="address" placeholder="Address">
+<input id="amount" placeholder="Amount">
+<button id="sendTxBtn">Transfer</button>
+<p id="txStatus"> </p>
+<input id="spenderAddr" placeholder="Spender Address">
+<input id="amountforSpender" placeholder="Amount">
+<button id="approveBtn">Approve</button> <br> <br>
+<input id="approver" placeholder="Approver Address">
+<input id="spender" placeholder="Spender Address">
+<button id="allowanceBtn">Check Allowance</button>
+<p id="allowance"></p>
+
+</body>
+</html>
