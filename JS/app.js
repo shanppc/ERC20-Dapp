@@ -121,3 +121,16 @@ try{
 }
 
 document.getElementById("transferFromBtn").onclick = transferFrom;
+
+async function Burn() {
+    const buringAmount = document.getElementById("burningAmount").value;
+    const amount = ethers.parseUnits(buringAmount,18);
+    try{
+    const tx = await tokenContract.burn(amount);
+    tx.wait();
+    console.log(`Burned: ${tx.hash}`);
+    }catch(error) {
+        console.error(error);
+    }
+}
+   document.getElementById("burnBTn").onclick = Burn;
