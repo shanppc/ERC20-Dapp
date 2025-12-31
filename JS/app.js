@@ -3,14 +3,16 @@ let provider;
 let signer;
 let tokenContract;
 
-const tokenAddress = "0x71B0Cf1Fa252787818F692e136bc91C99855a059";
+const tokenAddress = "0xE44a188329Dd840c6c4aBe5646376FF2e67c091D";
+const SEPOLIA_CHAIN_ID = '0xaa36a7';
 
+//Wallet Connection
 async function connectWallet() {
     if(!window.ethereum){
         alert ("Metamask not found");
         return;
     }
-    const SEPOLIA_CHAIN_ID = '0xaa36a7'; 
+     
     try{
     provider = new ethers.BrowserProvider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
@@ -59,16 +61,17 @@ async function loadTokenData(){
      document.getElementById("connectBtn").onclick = connectWallet;
     
 async function transfer() {
-    const amountToTransfer  = document.getElementById("amount").value;
-    const address =document.getElementById("address").value ;
+    const amountInTokens  = document.getElementById("amount").value;
+    const address = document.getElementById("address").value ;
 
-    const amount = ethers.parseUnits(amountToTransfer, 18);
+    const amountInBaseUnits  = ethers.parseUnits(amountInTokens, 18);
     try{
-        const tx = await tokenContract.transfer(address, amount);
+        const tx = await tokenContract.transfer(address, amountInBaseUnits);
         document.getElementById("txStatus").innerText =  "Sending Transaction....";
         await tx.wait();
         document.getElementById("txStatus").innerText = 
         `Transaction submitted: ${tx.hash}`;
+        await loadTokenData()
         } catch (error){
            console.error("Transfer failed:", error);
            document.getElementById("txStatus").innerText = 
@@ -79,13 +82,14 @@ async function transfer() {
      document.getElementById("sendTxBtn").onclick = transfer;
 
    async function Approve() {
-    const amountToApprove = document.getElementById("amountforSpender").value;
+    const amountInTokens = document.getElementById("amountforSpender").value;
     const address = document.getElementById("spenderAddr").value;
 
-    const amount = ethers.parseUnits(amountToApprove, 18)
+    const amountInBaseUnits = ethers.parseUnits(amountInTokens, 18)
     try{
-         const tx = await tokenContract.approve(address, amount);
+         const tx = await tokenContract.approve(address, amountInBaseUnits);
          console.log("Approved", tx.hash);    
+
      } catch(error){
         console.error(error);
      } 
@@ -97,8 +101,8 @@ async function transfer() {
     const approverAddr = document.getElementById("approver").value;
     const spenderAdr = document.getElementById("spender").value;
 try{
-    const allowanceAmount = await tokenContract.allowance(approverAddr, spenderAdr);
-    document.getElementById("allowance").innerText = ethers.formatUnits(allowanceAmount, 18);
+    const allowanceInBaseUnits = await tokenContract.allowance(approverAddr, spenderAdr);
+    document.getElementById("allowance").innerText = ethers.formatUnits(allowanceInBaseUnits, 18);
     } catch (error){
         console.error(error);
     }
@@ -108,11 +112,11 @@ try{
     async function transferFrom() {
     const fromAddr = document.getElementById("_from").value;
     const toAddr = document.getElementById("_to").value;
-    const amountToSend = document.getElementById("_amount").value;
+    const amountInTokens = document.getElementById("_amount").value;
 
-    const amount = ethers.parseUnits(amountToSend, 18)
+    const amountInBaseUnits = ethers.parseUnits(amountInTokens, 18);
    try{
-    const tx = await tokenContract.transferFrom(fromAddr, toAddr, amount);
+    const tx = await tokenContract.transferFrom(fromAddr, toAddr, amountInBaseUnits);
     await tx.wait();
     console.log("Transaction Confirmed: ",tx.hash);
    } catch (error){
@@ -123,12 +127,13 @@ try{
 document.getElementById("transferFromBtn").onclick = transferFrom;
 
 async function Burn() {
-    const buringAmount = document.getElementById("burningAmount").value;
-    const amount = ethers.parseUnits(buringAmount,18);
+    const amountInTokens = document.getElementById("burningAmount").value;
+    const amountInBaseUnits = ethers.parseUnits(amountInTokens,18);
     try{
-    const tx = await tokenContract.burn(amount);
+    const tx = await tokenContract.burn(amountInBaseUnits);
     tx.wait();
     console.log(`Burned: ${tx.hash}`);
+     await loadTokenData(); // Update Burner balance
     }catch(error) {
         console.error(error);
     }
