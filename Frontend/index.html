@@ -1,122 +1,219 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>ERC-20 DApp</title>
-
-    <style>
-button:disabled {
-    pointer-events: auto !important; 
-    cursor: not-allowed;         
-    opacity: 0.6;                 
-}</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z Token DApp</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div class="container">
+        <header>
+            <div class="logo">⚡ Z Token DApp</div>
+            <div class="wallet-section">
+                <button id="connectBtn" class="btn btn-primary">Connect Wallet</button>
+                <div id="accountDisplay" style="display: none;">
+                    <div class="wallet-address" id="account"></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-page="home">Home</button>
+            <button class="nav-tab" data-page="owner">Owner Panel</button>
+            <button class="nav-tab" data-page="faucet">Faucet</button>
+        </div>
+
+        <!-- Home Page -->
+        <div id="home-page" class="page active">
+            <div class="card">
+                <h2>📊 Token Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Token Name</div>
+                        <div class="info-value" id="tokenName">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Symbol</div>
+                        <div class="info-value" id="tokenSymbol">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Decimals</div>
+                        <div class="info-value" id="tokenDecimals">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Your Balance</div>
+                        <div class="info-value" id="balance">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>💸 Transfer Tokens</h2>
+                <div class="action-section">
+                    <div class="form-group">
+                        <label>Recipient Address</label>
+                        <input id="address" placeholder="0x..." type="text">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input id="amount" placeholder="0.0" type="number" step="0.000001">
+                    </div>
+                    <button id="sendTxBtn" class="btn btn-primary">Send Transfer</button>
+                    <div id="txStatus"></div>
+                </div>
+
+                <h3>✅ Approve Spender</h3>
+                <div class="action-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Spender Address</label>
+                            <input id="spenderAddr" placeholder="0x..." type="text">
+                        </div>
+                        <div class="form-group">
+                            <label>Amount</label>
+                            <input id="amountforSpender" placeholder="0.0" type="number" step="0.000001">
+                        </div>
+                    </div>
+                    <button id="approveBtn" class="btn btn-primary">Approve</button>
+                </div>
+
+                <h3>🔍 Check Allowance</h3>
+                <div class="action-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Owner Address</label>
+                            <input id="approver" placeholder="0x..." type="text">
+                        </div>
+                        <div class="form-group">
+                            <label>Spender Address</label>
+                            <input id="spender" placeholder="0x..." type="text">
+                        </div>
+                    </div>
+                    <button id="allowanceBtn" class="btn btn-primary">Check Allowance</button>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label>Allowance:</label>
+                        <div style="font-size: 20px; font-weight: bold; color: #667eea;" id="allowance">-</div>
+                    </div>
+                </div>
+
+                <h3>🔄 Transfer From</h3>
+                <div class="action-section">
+                    <div class="form-group">
+                        <label>From Address</label>
+                        <input id="_from" placeholder="0x..." type="text">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>To Address</label>
+                            <input id="_to" placeholder="0x..." type="text">
+                        </div>
+                        <div class="form-group">
+                            <label>Amount</label>
+                            <input id="_amount" placeholder="0.0" type="number" step="0.000001">
+                        </div>
+                    </div>
+                    <button id="transferFromBtn" class="btn btn-primary">Transfer From</button>
+                </div>
+
+                <h3>🔥 Burn Tokens</h3>
+                <div class="action-section">
+                    <div class="form-group">
+                        <label>Amount to Burn</label>
+                        <input id="burningAmount" placeholder="0.0" type="number" step="0.000001">
+                    </div>
+                    <button id="burnBtn" class="btn btn-primary">Burn Tokens</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Owner Page -->
+        <div id="owner-page" class="page">
+            <div class="card">
+                <h2>👑 Owner Functions</h2>
+                <p style="color: #666; margin-bottom: 20px;">⚠️ These functions are only available to the contract owner</p>
+
+                <h3>⛏️ Mint New Tokens</h3>
+                <div class="action-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Recipient Address</label>
+                            <input id="addrToMint" placeholder="0x..." type="text">
+                        </div>
+                        <div class="form-group">
+                            <label>Amount to Mint</label>
+                            <input id="amutToMint" placeholder="0.0" type="number" step="0.000001">
+                        </div>
+                    </div>
+                    <button id="mintBtn" class="btn btn-primary">Mint Tokens</button>
+                </div>
+
+                <h3>⏸️ Pause Control</h3>
+                <div class="action-section">
+                    <p style="color: #666; margin-bottom: 15px;">Pause or unpause all token transfers</p>
+                    <button id="pauseBtn" class="btn btn-primary" style="margin-right: 10px;">Pause Contract</button>
+                    <button id="unPauseBtn" class="btn btn-secondary">Unpause Contract</button>
+                </div>
+
+                <h3>🔑 Transfer Ownership</h3>
+                <div class="action-section">
+                    <div class="form-group">
+                        <label>New Owner Address</label>
+                        <input id="newOwnerAddr" placeholder="0x..." type="text">
+                    </div>
+                    <button id="newOwnerBtn" class="btn btn-primary">Transfer Ownership</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Faucet Page -->
+        <div id="faucet-page" class="page">
+            <div class="faucet-banner">
+                <h3>🎁 Free Token Faucet</h3>
+                <p>Claim 20 Z Tokens for testing purposes!</p>
+            </div>
+            <div class="card">
+                <h2>💧 Claim Free Tokens</h2>
+                <div class="action-section">
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Connect your wallet and click the button below to receive 20 free Z Tokens. 
+                        You can claim once a day.
+                    </p>
+                    <button id="claimBtn" class="btn btn-primary" style="font-size: 18px; padding: 15px 30px;">
+                        🎁 Claim 20 Z Tokens
+                    </button>
+                    <div id="claimStatus"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wallet Selection Modal -->
+    <div id="walletModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Connect Wallet</h3>
+            <div class="wallet-option" id="metamaskOption">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                    <path d="M35.5 7L22 16.5L24.5 10.5L35.5 7Z" fill="#E17726"/>
+                    <path d="M4.5 7L17.8 16.6L15.5 10.5L4.5 7Z" fill="#E27625"/>
+                    <path d="M30.5 28L27 33.5L34.5 35.5L36.5 28.2L30.5 28Z" fill="#E27625"/>
+                    <path d="M3.5 28.2L5.5 35.5L13 33.5L9.5 28L3.5 28.2Z" fill="#E27625"/>
+                </svg>
+                <span><strong>MetaMask</strong></span>
+            </div>
+            <div class="wallet-option" id="walletconnectOption">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                    <path d="M11.5 14.5C16.5 9.5 24.5 9.5 29.5 14.5L30.5 15.5C30.7 15.7 30.7 16.1 30.5 16.3L28.5 18.3C28.4 18.4 28.2 18.4 28.1 18.3L26.8 17C23.5 13.7 18.5 13.7 15.2 17L13.8 18.4C13.7 18.5 13.5 18.5 13.4 18.4L11.4 16.4C11.2 16.2 11.2 15.8 11.4 15.6L11.5 14.5Z" fill="#3B99FC"/>
+                    <path d="M33 21L34.5 22.5C34.7 22.7 34.7 23.1 34.5 23.3L27.5 30.3C27.3 30.5 26.9 30.5 26.7 30.3L20.5 24.1L14.3 30.3C14.1 30.5 13.7 30.5 13.5 30.3L6.5 23.3C6.3 23.1 6.3 22.7 6.5 22.5L8 21C8.2 20.8 8.6 20.8 8.8 21L15 27.2L21.2 21C21.4 20.8 21.8 20.8 22 21L28.2 27.2L33 21Z" fill="#3B99FC"/>
+                </svg>
+                <span><strong>WalletConnect</strong></span>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
     <script type="module" src="/JS/app.js"></script>
-    
-    <nav>
-        <button class="nav-btn active" data-page="home">Home</button>
-        <button class="nav-btn" data-page="owner">Owner</button>
-    </nav>
-    
-    
-    <button id="connectBtn">Connect Wallet</button>
-    <p id="account"></p>
-    
-    <hr>
-    
-    <!-- Home Page Section -->
-    <div id="home-page" class="page active">
-        <h2>Token Information</h2>
-        <p>Name: <span id="tokenName"></span></p>
-        <p>Symbol: <span id="tokenSymbol"></span></p>
-        <p>Decimals: <span id="tokenDecimals"></span></p>
-        <p>Balance: <span id="balance"></span></p>
-        
-        <h3>Transfer</h3>
-        <input id="address" placeholder="Address">
-        <input id="amount" placeholder="Amount">
-        <button id="sendTxBtn">Transfer</button>
-        <p id="txStatus"></p>
-        
-        <h3>Approve</h3>
-        <input id="spenderAddr" placeholder="Spender Address">
-        <input id="amountforSpender" placeholder="Amount">
-        <button id="approveBtn">Approve</button>
-        
-        <h3>Check Allowance</h3>
-        <input id="approver" placeholder="Approver Address">
-        <input id="spender" placeholder="Spender Address">
-        <button id="allowanceBtn">Check Allowance</button>
-        <p id="allowance"></p>
-        
-        <h3>Transfer From</h3>
-        <input id="_from" placeholder="From">
-        <input id="_to" placeholder="To">
-        <input id="_amount" placeholder="Amount">
-        <button id="transferFromBtn">Transfer From</button>
-        
-        <h3>Burn</h3>
-        <input id="burningAmount" placeholder="Amount">
-        <button id="burnBtn">Burn</button>
-    </div>
-    
-    <!-- Owner Page Section -->
-    <div id="owner-page" class="page">
-        <h2>Owner Functions</h2>
-        
-        <h3>Mint Tokens</h3>
-        <input id="addrToMint" placeholder="Address">
-        <input id="amutToMint" placeholder="Amount">
-        <button id="mintBtn">Mint</button>
-        
-        <h3>Pause Control</h3>
-        <button id="pauseBtn">Pause</button>
-        <button id="unPauseBtn">UnPause</button>
-        
-        <h3>Transfer Ownership</h3>
-        <input id="newOwnerAddr" placeholder="New Owner">
-        <button id="newOwnerBtn">Transfer Ownership</button>
-    </div>
-    
-    <script type="module">
-        // Navigation functionality
-        const navButtons = document.querySelectorAll('.nav-btn');
-        const pages = document.querySelectorAll('.page');
-        
-        navButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const targetPage = btn.getAttribute('data-page');
-                
-                // Remove active class from all buttons and pages
-                navButtons.forEach(b => b.classList.remove('active'));
-                pages.forEach(p => p.classList.remove('active'));
-                
-                // Add active class to clicked button and target page
-                btn.classList.add('active');
-                document.getElementById(targetPage + '-page').classList.add('active');
-            });
-        });
-    </script>
-    
-    <style>
-        .page {
-            display: none;
-        }
-        
-        .page.active {
-            display: block;
-        }
-        
-        .nav-btn {
-            margin-right: 10px;
-        }
-        
-        .nav-btn.active {
-            font-weight: bold;
-        }
-    </style>
-    
-    
 </body>
 </html>

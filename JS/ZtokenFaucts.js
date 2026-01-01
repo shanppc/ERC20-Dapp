@@ -1,4 +1,4 @@
-import {FauctContract_ABI} from "./FauctContractAbi.js";
+{FauctContract_ABI} from "./FauctContractAbi.js";
 let provider;
 let signer;
 let FauctContract;

@@ -1,18 +1,52 @@
 import { ERC20_ABI } from "./Erc20abi.js";
+import { FauctContract_ABI } from "./FauctContractAbi.js";
 
 
 let provider;
 let signer;
 let tokenContract;
-
+let faucetContract;
+let walletConnectProvider;
 const tokenAddress = "0xE44a188329Dd840c6c4aBe5646376FF2e67c091D";
+const faucetAddress = "0xD232e9afC5931Fbf9026f9357EbDfadd05Eb22Aa";
 const SEPOLIA_CHAIN_ID = '0xaa36a7';
 
-// WALLET CONNECTION 
+// ==================== WALLET CONNECTION ====================
 
-async function connectWallet() {
+// Modal functionality
+const modal = document.getElementById('walletModal');
+const closeBtn = document.querySelector('.close');
+const connectBtn = document.getElementById('connectBtn');
+
+connectBtn.onclick = () => {
+    modal.style.display = 'block';
+};
+
+closeBtn.onclick = () => {
+    modal.style.display = 'none';
+};
+
+window.onclick = (event) => {
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
+
+// MetaMask connection
+document.getElementById('metamaskOption').onclick = async () => {
+    modal.style.display = 'none';
+    await connectMetaMask();
+};
+
+// WalletConnect connection
+document.getElementById('walletconnectOption').onclick = async () => {
+    modal.style.display = 'none';
+    await connectWalletConnect();
+};
+
+async function connectMetaMask() {
     if (!window.ethereum) {
-        alert("Metamask not found");
+        alert("MetaMask not found! Please install MetaMask.");
         return;
     }
 
@@ -22,7 +56,6 @@ async function connectWallet() {
         const network = await provider.getNetwork();
         const currentChainId = "0x" + network.chainId.toString(16);
 
-        // Check if on Sepolia network
         if (currentChainId !== SEPOLIA_CHAIN_ID) {
             try {
                 await window.ethereum.request({
@@ -35,27 +68,50 @@ async function connectWallet() {
                 } else {
                     throw switchError;
                 }
+                return;
             }
         }
 
-        signer = await provider.getSigner();
-        tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
-
-        const address = await signer.getAddress();
-        document.getElementById("account").innerText = address;
-        
-       await loadTokenData();
-       await checkAdminPermissions(address);
-  
+        await initializeContracts();
     } catch (error) {
-        console.error("Connection failed", error);
+        console.error("MetaMask connection failed:", error);
         alert("Connection failed. Check console for details.");
     }
 }
 
-document.getElementById("connectBtn").onclick = connectWallet;
+async function connectWalletConnect() {
+    try {
+        walletConnectProvider = new WalletConnectProvider.default({
+            rpc: {
+                11155111: `https://eth-sepolia.g.alchemy.com/v2/${alchemyKey}` 
+            },
+            chainId: 11155111
+        });
 
-// HOME PAGE FUNCTIONS //
+        await walletConnectProvider.enable();
+        provider = new ethers.BrowserProvider(walletConnectProvider);
+        await initializeContracts();
+    } catch (error) {
+        console.error("WalletConnect connection failed:", error);
+        alert("WalletConnect connection failed. Check console for details.");
+    }
+}
+
+async function initializeContracts() {
+    signer = await provider.getSigner();
+    tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+    faucetContract = new ethers.Contract(faucetAddress, FauctContract_ABI, signer);
+
+    const address = await signer.getAddress();
+    document.getElementById("account").innerText = address.slice(0, 6) + '...' + address.slice(-4);
+    document.getElementById("accountDisplay").style.display = 'block';
+    document.getElementById("connectBtn").style.display = 'none';
+
+    await loadTokenData();
+    await checkAdminPermissions(address);
+}
+
+// ==================== HOME PAGE FUNCTIONS ====================
 
 async function loadTokenData() {
     try {
@@ -64,10 +120,15 @@ async function loadTokenData() {
         document.getElementById("tokenDecimals").innerText = (await tokenContract.decimals()).toString();
 
         const balance = await tokenContract.balanceOf(await signer.getAddress());
-        document.getElementById("balance").innerText = ethers.formatEther(balance);
+        document.getElementById("balance").innerText = parseFloat(ethers.formatEther(balance)).toFixed(4);
     } catch (error) {
         console.error("Error loading token data:", error);
     }
+}
+
+function showStatus(elementId, message, type) {
+    const el = document.getElementById(elementId);
+    el.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
 }
 
 async function transfer() {
@@ -81,18 +142,19 @@ async function transfer() {
 
     const amountInBaseUnits = ethers.parseUnits(amountInTokens, 18);
     try {
+        showStatus("txStatus", "⏳ Sending transaction...", "pending");
         const tx = await tokenContract.transfer(address, amountInBaseUnits);
-        document.getElementById("txStatus").innerText = "Sending Transaction....";
+        showStatus("txStatus", "⏳ Waiting for confirmation...", "pending");
         await tx.wait();
-        document.getElementById("txStatus").innerText = `Transaction submitted: ${tx.hash}`;
+        showStatus("txStatus", `✅ Success! TX: ${tx.hash.slice(0, 10)}...`, "success");
         await loadTokenData();
+        document.getElementById("amount").value = "";
+        document.getElementById("address").value = "";
     } catch (error) {
         console.error("Transfer failed:", error);
-        document.getElementById("txStatus").innerText = "Transaction Failed. Check console for details.";
+        showStatus("txStatus", "❌ Transaction failed. Check console.", "error");
     }
 }
-
-document.getElementById("sendTxBtn").onclick = transfer;
 
 async function approve() {
     const amountInTokens = document.getElementById("amountforSpender").value;
@@ -107,22 +169,21 @@ async function approve() {
     try {
         const tx = await tokenContract.approve(address, amountInBaseUnits);
         await tx.wait();
-        console.log("Approved:", tx.hash);
-        alert("Approval successful!");
+        alert("✅ Approval successful!");
+        document.getElementById("amountforSpender").value = "";
+        document.getElementById("spenderAddr").value = "";
     } catch (error) {
         console.error("Approval failed:", error);
-        alert("Approval failed. Check console for details.");
+        alert("❌ Approval failed. Check console.");
     }
 }
-
-document.getElementById("approveBtn").onclick = approve;
 
 async function checkAllowance() {
     const approverAddr = document.getElementById("approver").value;
     const spenderAddr = document.getElementById("spender").value;
 
     if (!approverAddr || !spenderAddr) {
-        alert("Please enter both approver and spender addresses");
+        alert("Please enter both addresses");
         return;
     }
 
@@ -131,11 +192,9 @@ async function checkAllowance() {
         document.getElementById("allowance").innerText = ethers.formatUnits(allowanceInBaseUnits, 18);
     } catch (error) {
         console.error("Error checking allowance:", error);
-        document.getElementById("allowance").innerText = "Error checking allowance";
+        document.getElementById("allowance").innerText = "Error";
     }
 }
-
-document.getElementById("allowanceBtn").onclick = checkAllowance;
 
 async function transferFrom() {
     const fromAddr = document.getElementById("_from").value;
@@ -151,16 +210,16 @@ async function transferFrom() {
     try {
         const tx = await tokenContract.transferFrom(fromAddr, toAddr, amountInBaseUnits);
         await tx.wait();
-        console.log("Transaction Confirmed:", tx.hash);
-        alert("Transfer from successful!");
+        alert("✅ Transfer from successful!");
         await loadTokenData();
+        document.getElementById("_from").value = "";
+        document.getElementById("_to").value = "";
+        document.getElementById("_amount").value = "";
     } catch (error) {
         console.error("TransferFrom failed:", error);
-        alert("Transfer from failed. Check console for details.");
+        alert("❌ Transfer failed. Check console.");
     }
 }
-
-document.getElementById("transferFromBtn").onclick = transferFrom;
 
 async function burn() {
     const amountInTokens = document.getElementById("burningAmount").value;
@@ -174,19 +233,17 @@ async function burn() {
     try {
         const tx = await tokenContract.burn(amountInBaseUnits);
         await tx.wait();
-        console.log(`Burned: ${tx.hash}`);
-        alert("Tokens burned successfully!");
+        alert("🔥 Tokens burned successfully!");
         await loadTokenData();
+        document.getElementById("burningAmount").value = "";
     } catch (error) {
         console.error("Burn failed:", error);
-        alert("Burn failed. Check console for details.");
+        alert("❌ Burn failed. Check console.");
     }
 }
 
-document.getElementById("burnBtn").onclick = burn;
+// ==================== OWNER PAGE FUNCTIONS ====================
 
-
-// OWNER PAGE FUNCTIONS //
 async function checkAdminPermissions(userAddress) {
     try {
         const owner = await tokenContract.owner();
@@ -197,8 +254,8 @@ async function checkAdminPermissions(userAddress) {
             adminButtons.forEach(id => {
                 const btn = document.getElementById(id);
                 if (btn) {
-                    btn.disabled = true; 
-                    btn.title = "Only the owner can use this function"; 
+                    btn.disabled = true;
+                    btn.title = "Only the owner can use this function";
                 }
             });
         }
@@ -206,7 +263,6 @@ async function checkAdminPermissions(userAddress) {
         console.error("Could not verify owner status:", error);
     }
 }
-    
 
 async function mint() {
     const address = document.getElementById("addrToMint").value;
@@ -221,43 +277,36 @@ async function mint() {
     try {
         const tx = await tokenContract.mint(address, amount);
         await tx.wait();
-        console.log("Minted:", tx.hash);
-        alert("Tokens minted successfully!");
+        alert(" Tokens minted successfully!");
+        document.getElementById("addrToMint").value = "";
+        document.getElementById("amutToMint").value = "";
     } catch (error) {
         console.error("Mint failed:", error);
-        alert("Mint failed. Check console for details.");
+        alert("❌ Mint failed. Check console.");
     }
 }
-
-document.getElementById("mintBtn").onclick = mint;
 
 async function pause() {
     try {
         const tx = await tokenContract.pause();
         await tx.wait();
-        console.log("Paused:", tx.hash);
-        alert("Contract paused successfully!");
+        alert("⏸️ Contract paused successfully!");
     } catch (error) {
         console.error("Pause failed:", error);
-        alert("Pause failed. Check console for details.");
+        alert("❌ Pause failed. Check console.");
     }
 }
-
-document.getElementById("pauseBtn").onclick = pause;
 
 async function unpause() {
     try {
         const tx = await tokenContract.unpause();
         await tx.wait();
-        console.log("Unpaused:", tx.hash);
-        alert("Contract unpaused successfully!");
+        alert("▶️ Contract unpaused successfully!");
     } catch (error) {
         console.error("Unpause failed:", error);
-        alert("Unpause failed. Check console for details.");
+        alert("❌ Unpause failed. Check console.");
     }
 }
-
-document.getElementById("unPauseBtn").onclick = unpause;
 
 async function changeOwner() {
     const newOwner = document.getElementById("newOwnerAddr").value;
@@ -270,12 +319,56 @@ async function changeOwner() {
     try {
         const tx = await tokenContract.transferOwnership(newOwner);
         await tx.wait();
-        console.log("Owner Changed:", tx.hash);
-        alert("Ownership transferred successfully!");
+        alert("🔑 Ownership transferred successfully!");
+        document.getElementById("newOwnerAddr").value = "";
     } catch (error) {
         console.error("Transfer ownership failed:", error);
-        alert("Transfer ownership failed. Check console for details.");
+        alert("❌ Transfer ownership failed. Check console.");
     }
 }
 
+// ==================== FAUCET FUNCTIONS ====================
+
+async function claimTokens() {
+    try {
+        showStatus("claimStatus", "⏳ Claiming tokens...", "pending");
+        const tx = await faucetContract.requestTokens();
+        showStatus("claimStatus", "⏳ Waiting for confirmation...", "pending");
+        await tx.wait();
+        showStatus("claimStatus", "🎉 Successfully claimed 20 Z Tokens!", "success");
+        await loadTokenData();
+    } catch (error) {
+        console.error("Claim failed:", error);
+        showStatus("claimStatus", "❌ Claim failed. wait for 24 hours", "error");
+    }
+}
+
+// ==================== EVENT LISTENERS ====================
+
+document.getElementById("sendTxBtn").onclick = transfer;
+document.getElementById("approveBtn").onclick = approve;
+document.getElementById("allowanceBtn").onclick = checkAllowance;
+document.getElementById("transferFromBtn").onclick = transferFrom;
+document.getElementById("burnBtn").onclick = burn;
+document.getElementById("mintBtn").onclick = mint;
+document.getElementById("pauseBtn").onclick = pause;
+document.getElementById("unPauseBtn").onclick = unpause;
 document.getElementById("newOwnerBtn").onclick = changeOwner;
+document.getElementById("claimBtn").onclick = claimTokens;
+
+// ==================== NAVIGATION ====================
+
+const navTabs = document.querySelectorAll('.nav-tab');
+const pages = document.querySelectorAll('.page');
+
+navTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        const targetPage = tab.getAttribute('data-page');
+        
+        navTabs.forEach(t => t.classList.remove('active'));
+        pages.forEach(p => p.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(targetPage + '-page').classList.add('active');
+    });
+});
