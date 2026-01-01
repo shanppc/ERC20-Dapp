@@ -1,36 +1,122 @@
+<!DOCTYPE html>
 <html>
-    <head> <title> Erc 20 Dapp</title>
-    </head>
-    <body>
-         <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
-         <script type="module" src="/JS/app.js"></script>
+<head>
+    <title>ERC-20 DApp</title>
+
+    <style>
+button:disabled {
+    pointer-events: auto !important; 
+    cursor: not-allowed;         
+    opacity: 0.6;                 
+}</style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+    <script type="module" src="/JS/app.js"></script>
     
-<button id="connectBtn">Connect Wallet</button>
-<p id="account"> </p>
-
-<p> Name: <span id="tokenName"></span> </p>
-<p>Symbol: <span id="tokenSymbol"></span> </p>
-<P>Decimals: <span id="tokenDecimals"></span> </P>
-<P>Balance: <span id= "balance"></span> </P>
-<input id="address" placeholder="Address">
-<input id="amount" placeholder="Amount">
-<button id="sendTxBtn">Transfer</button>
-<p id="txStatus"> </p>
-<input id="spenderAddr" placeholder="Spender Address">
-<input id="amountforSpender" placeholder="Amount">
-<button id="approveBtn">Approve</button> <br> <br>
-<input id="approver" placeholder="Approver Address">
-<input id="spender" placeholder="Spender Address">
-<button id="allowanceBtn">Check Allowance</button>
-<p id="allowance"></p>
-
-<input id="_from" placeholder="From">
-<input id="_to" placeholder="TO">
-<input id="_amount" placeholder="Amount">
-<button id="transferFromBtn">Transfer</button>
-<br><br>
-<input id="burningAmount" placeholder="Amount ">
-<button id="burnBTn">Burn</button>
-
+    <nav>
+        <button class="nav-btn active" data-page="home">Home</button>
+        <button class="nav-btn" data-page="owner">Owner</button>
+    </nav>
+    
+    
+    <button id="connectBtn">Connect Wallet</button>
+    <p id="account"></p>
+    
+    <hr>
+    
+    <!-- Home Page Section -->
+    <div id="home-page" class="page active">
+        <h2>Token Information</h2>
+        <p>Name: <span id="tokenName"></span></p>
+        <p>Symbol: <span id="tokenSymbol"></span></p>
+        <p>Decimals: <span id="tokenDecimals"></span></p>
+        <p>Balance: <span id="balance"></span></p>
+        
+        <h3>Transfer</h3>
+        <input id="address" placeholder="Address">
+        <input id="amount" placeholder="Amount">
+        <button id="sendTxBtn">Transfer</button>
+        <p id="txStatus"></p>
+        
+        <h3>Approve</h3>
+        <input id="spenderAddr" placeholder="Spender Address">
+        <input id="amountforSpender" placeholder="Amount">
+        <button id="approveBtn">Approve</button>
+        
+        <h3>Check Allowance</h3>
+        <input id="approver" placeholder="Approver Address">
+        <input id="spender" placeholder="Spender Address">
+        <button id="allowanceBtn">Check Allowance</button>
+        <p id="allowance"></p>
+        
+        <h3>Transfer From</h3>
+        <input id="_from" placeholder="From">
+        <input id="_to" placeholder="To">
+        <input id="_amount" placeholder="Amount">
+        <button id="transferFromBtn">Transfer From</button>
+        
+        <h3>Burn</h3>
+        <input id="burningAmount" placeholder="Amount">
+        <button id="burnBtn">Burn</button>
+    </div>
+    
+    <!-- Owner Page Section -->
+    <div id="owner-page" class="page">
+        <h2>Owner Functions</h2>
+        
+        <h3>Mint Tokens</h3>
+        <input id="addrToMint" placeholder="Address">
+        <input id="amutToMint" placeholder="Amount">
+        <button id="mintBtn">Mint</button>
+        
+        <h3>Pause Control</h3>
+        <button id="pauseBtn">Pause</button>
+        <button id="unPauseBtn">UnPause</button>
+        
+        <h3>Transfer Ownership</h3>
+        <input id="newOwnerAddr" placeholder="New Owner">
+        <button id="newOwnerBtn">Transfer Ownership</button>
+    </div>
+    
+    <script type="module">
+        // Navigation functionality
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const pages = document.querySelectorAll('.page');
+        
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetPage = btn.getAttribute('data-page');
+                
+                // Remove active class from all buttons and pages
+                navButtons.forEach(b => b.classList.remove('active'));
+                pages.forEach(p => p.classList.remove('active'));
+                
+                // Add active class to clicked button and target page
+                btn.classList.add('active');
+                document.getElementById(targetPage + '-page').classList.add('active');
+            });
+        });
+    </script>
+    
+    <style>
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .nav-btn {
+            margin-right: 10px;
+        }
+        
+        .nav-btn.active {
+            font-weight: bold;
+        }
+    </style>
+    
+    
 </body>
 </html>
