@@ -729,7 +729,7 @@ async function claimTokens() {
         await loadTokenData();
     } catch (error) {
         console.error("Claim failed:", error);
-        showStatus("claimStatus", "❌ Claim failed. You may have already claimed.", "error");
+        showStatus("claimStatus", "❌ Claim failed.", "error");
     }
 }
 
