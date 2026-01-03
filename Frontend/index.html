@@ -11,7 +11,7 @@
         <header>
             <div class="logo">⚡ Z Token DApp</div>
             <div class="wallet-section">
-                <button id="connectBtn" class="btn btn-primary">Connect Wallet</button>
+                <button id="connectBtn" class="btn btn-primary">Connect MetaMask</button>
                 <div id="accountDisplay" style="display: none;">
                     <div class="wallet-address" id="account"></div>
                 </div>
@@ -177,7 +177,7 @@
                 <div class="action-section">
                     <p style="color: #666; margin-bottom: 20px;">
                         Connect your wallet and click the button below to receive 20 free Z Tokens. 
-                        You can claim once a day.
+                        You can claim once per address.
                     </p>
                     <button id="claimBtn" class="btn btn-primary" style="font-size: 18px; padding: 15px 30px;">
                         🎁 Claim 20 Z Tokens
@@ -188,32 +188,9 @@
         </div>
     </div>
 
-    <!-- Wallet Selection Modal -->
-    <div id="walletModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Connect Wallet</h3>
-            <div class="wallet-option" id="metamaskOption">
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                    <path d="M35.5 7L22 16.5L24.5 10.5L35.5 7Z" fill="#E17726"/>
-                    <path d="M4.5 7L17.8 16.6L15.5 10.5L4.5 7Z" fill="#E27625"/>
-                    <path d="M30.5 28L27 33.5L34.5 35.5L36.5 28.2L30.5 28Z" fill="#E27625"/>
-                    <path d="M3.5 28.2L5.5 35.5L13 33.5L9.5 28L3.5 28.2Z" fill="#E27625"/>
-                </svg>
-                <span><strong>MetaMask</strong></span>
-            </div>
-            <div class="wallet-option" id="walletconnectOption">
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                    <path d="M11.5 14.5C16.5 9.5 24.5 9.5 29.5 14.5L30.5 15.5C30.7 15.7 30.7 16.1 30.5 16.3L28.5 18.3C28.4 18.4 28.2 18.4 28.1 18.3L26.8 17C23.5 13.7 18.5 13.7 15.2 17L13.8 18.4C13.7 18.5 13.5 18.5 13.4 18.4L11.4 16.4C11.2 16.2 11.2 15.8 11.4 15.6L11.5 14.5Z" fill="#3B99FC"/>
-                    <path d="M33 21L34.5 22.5C34.7 22.7 34.7 23.1 34.5 23.3L27.5 30.3C27.3 30.5 26.9 30.5 26.7 30.3L20.5 24.1L14.3 30.3C14.1 30.5 13.7 30.5 13.5 30.3L6.5 23.3C6.3 23.1 6.3 22.7 6.5 22.5L8 21C8.2 20.8 8.6 20.8 8.8 21L15 27.2L21.2 21C21.4 20.8 21.8 20.8 22 21L28.2 27.2L33 21Z" fill="#3B99FC"/>
-                </svg>
-                <span><strong>WalletConnect</strong></span>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-    <script type="module" src="/JS/app.js"></script>
+    <script type="module" src="JS/app.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
 </body>
 </html>
