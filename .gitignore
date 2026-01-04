@@ -21,4 +21,3 @@ hardhat/package.json
 hardhat/package-lock.json
 
 # app.js env file
-js/env.js

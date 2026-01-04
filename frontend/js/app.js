@@ -10,7 +10,10 @@ const tokenAddress = "0xE44a188329Dd840c6c4aBe5646376FF2e67c091D";
 const faucetAddress = "0xD232e9afC5931Fbf9026f9357EbDfadd05Eb22Aa";
 const SEPOLIA_CHAIN_ID = '0xaa36a7';
 
-let walletConnectProvider = null;
+
+const TOKEN_SYMBOL = "Z"; // Replace with your token symbol
+const TOKEN_DECIMALS = 18;
+const TOKEN_IMAGE = "../assets/z-token-img.png"; // Replace with your token logo URL
 
 // ==================== WALLET CONNECTION ====================
 
@@ -105,21 +108,6 @@ function showMobileConnectionOptions() {
                 4. Enter: <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-size: 11px; display: inline-block; margin-top: 5px;">${window.location.host}</code>
             </div>
             
-            <button onclick="tryWalletConnect()" style="
-                width: 100%;
-                background: transparent;
-                color: #037dd6;
-                padding: 15px;
-                border: 2px solid #037dd6;
-                border-radius: 12px;
-                font-size: 14px;
-                font-weight: bold;
-                cursor: pointer;
-                margin-bottom: 10px;
-            ">
-                🔗 Try WalletConnect Instead
-            </button>
-            
             <button onclick="document.getElementById('mobileModal').remove()" style="
                 background: transparent;
                 border: none;
@@ -161,91 +149,6 @@ window.openInMetaMask = function(url) {
         }
     }, 1000);
 };
-
-window.tryWalletConnect = async function() {
-    document.getElementById('mobileModal').remove();
-    await connectWithWalletConnect();
-};
-
-async function connectWithWalletConnect() {
-    try {
-        showConnectionStatus("Initializing WalletConnect...");
-        
-        // Check if WalletConnect is available
-        if (!window.WalletConnectProvider) {
-            throw new Error("WalletConnect library not loaded. Please refresh the page.");
-        }
-
-        const WalletConnectProvider = window.WalletConnectProvider.default;
-        
-        // Create new provider instance
-        walletConnectProvider = new WalletConnectProvider({
-            rpc: {
-                11155111: "https://ethereum-sepolia-rpc.publicnode.com"
-            },
-            chainId: 11155111,
-            qrcode: true, // Enable QR code as fallback
-            qrcodeModalOptions: {
-                mobileLinks: [
-                    "metamask",
-                    "trust",
-                    "rainbow",
-                ],
-            }
-        });
-
-        console.log("WalletConnect provider created");
-
-        // Set up event listeners
-        walletConnectProvider.connector.on("display_uri", (err, payload) => {
-            const uri = payload.params[0];
-            console.log("WalletConnect URI:", uri);
-            
-            // Try to open MetaMask with the URI
-            const metamaskLink = `https://metamask.app.link/wc?uri=${encodeURIComponent(uri)}`;
-            updateConnectionStatus("Opening MetaMask...", metamaskLink, uri);
-            
-            // Automatically try to open MetaMask
-            setTimeout(() => {
-                window.location.href = metamaskLink;
-            }, 500);
-        });
-
-        walletConnectProvider.connector.on("connect", async (error, payload) => {
-            if (error) {
-                console.error("Connection error:", error);
-                hideConnectionStatus();
-                alert("Connection failed: " + error.message);
-                return;
-            }
-            console.log("Connected successfully!", payload);
-            updateConnectionStatus("Connected! Setting up...");
-            await finalizeConnection();
-        });
-
-        walletConnectProvider.connector.on("disconnect", (error, payload) => {
-            console.log("Disconnected:", payload);
-            disconnectWallet();
-        });
-
-        // Enable the provider
-        updateConnectionStatus("Connecting to WalletConnect...");
-        await walletConnectProvider.enable();
-        
-        console.log("WalletConnect enabled");
-
-    } catch (error) {
-        console.error("WalletConnect failed:", error);
-        hideConnectionStatus();
-        
-        if (error.message.includes("User closed modal")) {
-            // User cancelled, just close
-            return;
-        }
-        
-        alert("Connection failed: " + error.message + "\n\nTry opening this page in MetaMask's built-in browser instead.");
-    }
-}
 
 async function connectWithMetaMask() {
     try {
@@ -302,7 +205,11 @@ async function connectWithMetaMask() {
         faucetContract = new ethers.Contract(faucetAddress, FauctContract_ABI, signer);
 
         const address = await signer.getAddress();
-        updateUIAfterConnection(address);
+        
+        // Add token to MetaMask wallet
+        await addTokenToWallet();
+        
+        await updateUIAfterConnection(address);
 
         // Set up event listeners
         window.ethereum.on('accountsChanged', handleAccountsChanged);
@@ -321,137 +228,32 @@ async function connectWithMetaMask() {
     }
 }
 
-async function finalizeConnection() {
+async function addTokenToWallet() {
     try {
-        provider = new ethers.BrowserProvider(walletConnectProvider);
-        signer = await provider.getSigner();
+        // Get token symbol from contract
+        const symbol = await tokenContract.symbol();
         
-        tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
-        faucetContract = new ethers.Contract(faucetAddress, FauctContract_ABI, signer);
-
-        const address = await signer.getAddress();
-        updateUIAfterConnection(address);
-        hideConnectionStatus();
-
-        // Subscribe to events
-        walletConnectProvider.on("accountsChanged", (accounts) => {
-            if (accounts.length === 0) {
-                disconnectWallet();
-            } else {
-                window.location.reload();
-            }
+        const wasAdded = await window.ethereum.request({
+            method: 'wallet_watchAsset',
+            params: {
+                type: 'ERC20',
+                options: {
+                    address: tokenAddress,
+                    symbol: symbol,
+                    decimals: TOKEN_DECIMALS,
+                    image: TOKEN_IMAGE,
+                },
+            },
         });
 
-        walletConnectProvider.on("chainChanged", () => {
-            window.location.reload();
-        });
-
-        walletConnectProvider.on("disconnect", () => {
-            disconnectWallet();
-        });
-
+        if (wasAdded) {
+            console.log('Token successfully added to wallet!');
+        } else {
+            console.log('Token addition was cancelled by user');
+        }
     } catch (error) {
-        console.error("Finalize connection failed:", error);
-        hideConnectionStatus();
-        alert("Failed to complete connection: " + error.message);
-    }
-}
-
-function showConnectionStatus(message) {
-    hideConnectionStatus();
-    
-    const statusDiv = document.createElement('div');
-    statusDiv.id = 'connectionStatus';
-    statusDiv.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0,0,0,0.95);
-        color: white;
-        padding: 30px;
-        border-radius: 15px;
-        z-index: 10000;
-        text-align: center;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        min-width: 300px;
-        max-width: 90%;
-    `;
-    statusDiv.innerHTML = `
-        <div style="font-size: 50px; margin-bottom: 15px;">🦊</div>
-        <div id="statusMessage" style="font-size: 16px; margin-bottom: 20px; font-weight: bold;">${message}</div>
-        <div class="spinner"></div>
-    `;
-    
-    const style = document.createElement('style');
-    style.textContent = `
-        .spinner {
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(style);
-    document.body.appendChild(statusDiv);
-}
-
-function updateConnectionStatus(message, metamaskLink, uri) {
-    const statusDiv = document.getElementById('connectionStatus');
-    if (!statusDiv) {
-        showConnectionStatus(message);
-        return;
-    }
-    
-    const messageDiv = document.getElementById('statusMessage');
-    if (messageDiv) {
-        messageDiv.textContent = message;
-    }
-    
-    if (metamaskLink && uri) {
-        // Add manual connection button and QR info
-        statusDiv.querySelector('div').innerHTML = `
-            <div style="font-size: 50px; margin-bottom: 15px;">🦊</div>
-            <div style="font-size: 16px; margin-bottom: 15px; font-weight: bold;">${message}</div>
-            <div style="font-size: 13px; opacity: 0.8; margin-bottom: 20px;">
-                Approve the connection in MetaMask
-            </div>
-            <button onclick="window.location.href='${metamaskLink}'" style="
-                padding: 12px 24px;
-                background: #f6851b;
-                border: none;
-                border-radius: 8px;
-                color: white;
-                cursor: pointer;
-                font-size: 14px;
-                font-weight: bold;
-                margin-bottom: 15px;
-            ">Open MetaMask Again</button>
-            <br>
-            <button onclick="window.hideConnectionStatus()" style="
-                padding: 10px 20px;
-                background: transparent;
-                border: 1px solid rgba(255,255,255,0.3);
-                border-radius: 8px;
-                color: white;
-                cursor: pointer;
-                font-size: 12px;
-            ">Cancel</button>
-        `;
-    }
-}
-
-function hideConnectionStatus() {
-    const statusDiv = document.getElementById('connectionStatus');
-    if (statusDiv) {
-        statusDiv.remove();
+        console.error('Error adding token to wallet:', error);
+        // Don't show alert - this is optional functionality
     }
 }
 
@@ -473,15 +275,6 @@ function handleAccountsChanged(accounts) {
 }
 
 function disconnectWallet() {
-    if (walletConnectProvider) {
-        try {
-            walletConnectProvider.disconnect();
-        } catch (error) {
-            console.error("Error disconnecting WalletConnect:", error);
-        }
-        walletConnectProvider = null;
-    }
-    
     provider = null;
     signer = null;
     tokenContract = null;
@@ -496,8 +289,6 @@ function disconnectWallet() {
     document.getElementById("tokenDecimals").innerText = "-";
     document.getElementById("balance").innerText = "-";
 }
-
-window.hideConnectionStatus = hideConnectionStatus;
 
 document.getElementById("connectBtn").onclick = connectWallet;
 
