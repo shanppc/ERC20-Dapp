@@ -1,11 +1,11 @@
 const hre = require("hardhat");
 
 async function main() {
-  // 1. Get the deployer's account (from your .env PRIVATE_KEY)
+  // 1. Get the deployer's account 
   const [deployer] = await hre.ethers.getSigners();
   console.log("Deploying ERC20 token using account:", deployer.address);
 
-  // Optional: Check balance before deploy (helps catch low-funds issues early)
+  // Check balance before deploy (helps catch low-funds issues early)
   const balance = await hre.ethers.provider.getBalance(deployer.address);
   console.log("Account balance:", hre.ethers.formatEther(balance), "ETH");
 
@@ -29,7 +29,6 @@ async function main() {
   const deployerBalance = await token.balanceOf(deployer.address);
   console.log("Initial supply minted to deployer:", hre.ethers.formatUnits(deployerBalance, 18), "tokens");
 
-  // Optional: If you have Etherscan verification set up in hardhat.config.js
   if (hre.network.name !== "hardhat" && hre.network.name !== "localhost") {
     console.log("\nWaiting 30 seconds before verifying (give the block explorers time to index)...");
     await new Promise(resolve => setTimeout(resolve, 30000));
