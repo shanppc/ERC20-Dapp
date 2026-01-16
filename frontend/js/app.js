@@ -5,15 +5,22 @@ let provider;
 let signer;
 let tokenContract;
 let faucetContract;
+let icoContract;
 
 const tokenAddress = "0xE44a188329Dd840c6c4aBe5646376FF2e67c091D";
 const faucetAddress = "0xD232e9afC5931Fbf9026f9357EbDfadd05Eb22Aa";
+const ICO_ADDRESS = "0x07F0a5F68CCc2Eb5198A5Bd4248e4a0b0e8397Af";
 const SEPOLIA_CHAIN_ID = '0xaa36a7';
 
+const ICO_ABI = [
+    "function buyTokens() external payable",
+    "function rate() public view returns(uint256)"
+];
 
-const TOKEN_SYMBOL = "Z"; // Replace with your token symbol
-const TOKEN_DECIMALS = 18;
-const TOKEN_IMAGE = "../assets/z-token-img.png"; // Replace with your token logo URL
+
+const TOKEN_IMAGE = "../assets/z-token-img.png"; // will add later
+
+let icoRate = 0; 
 
 // ==================== WALLET CONNECTION ====================
 
@@ -203,6 +210,7 @@ async function connectWithMetaMask() {
         signer = await provider.getSigner();
         tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
         faucetContract = new ethers.Contract(faucetAddress, FauctContract_ABI, signer);
+        icoContract = new ethers.Contract(ICO_ADDRESS, ICO_ABI, signer);
 
         const address = await signer.getAddress();
         
@@ -230,7 +238,13 @@ async function connectWithMetaMask() {
 
 async function addTokenToWallet() {
     try {
-        // Get token symbol from contract
+        const hasToken = localStorage.getItem(`token_added_${tokenAddress}`);
+        
+        if (hasToken) {
+            console.log('Token already added to wallet');
+            return;
+        }
+
         const symbol = await tokenContract.symbol();
         
         const wasAdded = await window.ethereum.request({
@@ -240,7 +254,7 @@ async function addTokenToWallet() {
                 options: {
                     address: tokenAddress,
                     symbol: symbol,
-                    decimals: TOKEN_DECIMALS,
+                    decimals: 18,
                     image: TOKEN_IMAGE,
                 },
             },
@@ -248,12 +262,13 @@ async function addTokenToWallet() {
 
         if (wasAdded) {
             console.log('Token successfully added to wallet!');
+            // Mark token as added in localStorage
+            localStorage.setItem(`token_added_${tokenAddress}`, 'true');
         } else {
             console.log('Token addition was cancelled by user');
         }
     } catch (error) {
         console.error('Error adding token to wallet:', error);
-        // Don't show alert - this is optional functionality
     }
 }
 
@@ -264,6 +279,7 @@ async function updateUIAfterConnection(address) {
     
     await loadTokenData();
     await checkAdminPermissions(address);
+    await loadICOData(address);
 }
 
 function handleAccountsChanged(accounts) {
@@ -279,6 +295,8 @@ function disconnectWallet() {
     signer = null;
     tokenContract = null;
     faucetContract = null;
+    icoContract = null;
+    icoRate = 0;
     
     document.getElementById("account").innerText = "";
     document.getElementById("accountDisplay").style.display = 'none';
@@ -288,6 +306,10 @@ function disconnectWallet() {
     document.getElementById("tokenSymbol").innerText = "-";
     document.getElementById("tokenDecimals").innerText = "-";
     document.getElementById("balance").innerText = "-";
+    
+    document.getElementById("ico-account").innerText = "Not connected";
+    document.getElementById("ico-rate").innerText = "Connect wallet to see rate";
+    document.getElementById("ico-z-amount").innerText = "0";
 }
 
 document.getElementById("connectBtn").onclick = connectWallet;
@@ -524,6 +546,76 @@ async function claimTokens() {
     }
 }
 
+// ==================== ICO FUNCTIONS ====================
+
+async function loadICOData(address) {
+    try {
+        document.getElementById("ico-account").innerText = address.slice(0, 6) + '...' + address.slice(-4);
+        
+        // Fetch and display rate
+        const rawRate = await icoContract.rate();
+        icoRate = Number(rawRate);
+        document.getElementById("ico-rate").innerText = `${icoRate} Z = 1 ETH`;
+    } catch (error) {
+        console.error("Error loading ICO data:", error);
+        document.getElementById("ico-rate").innerText = "Error loading rate";
+    }
+}
+
+// Real-time calculation for ICO
+document.getElementById("ico-eth-amount").addEventListener("input", function() {
+    const ethAmount = this.value;
+    const display = document.getElementById("ico-z-amount");
+
+    if (!icoContract || icoRate === 0) {
+        display.innerText = "0";
+        return;
+    }
+
+    if (ethAmount && ethAmount > 0) {
+        const calculated = parseFloat(ethAmount) * icoRate;
+        display.innerText = calculated.toLocaleString();
+    } else {
+        display.innerText = "0";
+    }
+});
+
+async function buyTokens() {
+    if (!icoContract) {
+        alert("Please connect your wallet first");
+        return;
+    }
+
+    const ethAmount = document.getElementById("ico-eth-amount").value;
+    
+    if (!ethAmount || ethAmount <= 0) {
+        alert("Please enter a valid ETH amount");
+        return;
+    }
+
+    try {
+        showStatus("ico-status", "⏳ Sending transaction...", "pending");
+        
+        const tx = await icoContract.buyTokens({
+            value: ethers.parseEther(ethAmount)
+        });
+
+        showStatus("ico-status", "⏳ Waiting for confirmation...", "pending");
+        await tx.wait();
+        
+        showStatus("ico-status", "🎉 Tokens purchased successfully!", "success");
+     
+        await loadTokenData();
+        
+        document.getElementById("ico-eth-amount").value = "";
+        document.getElementById("ico-z-amount").innerText = "0";
+        
+    } catch (error) {
+        console.error("Buy tokens failed:", error);
+        showStatus("ico-status", "❌ Transaction failed. Check console.", "error");
+    }
+}
+
 // ==================== EVENT LISTENERS ====================
 
 document.getElementById("sendTxBtn").onclick = transfer;
@@ -536,6 +628,7 @@ document.getElementById("pauseBtn").onclick = pause;
 document.getElementById("unPauseBtn").onclick = unpause;
 document.getElementById("newOwnerBtn").onclick = changeOwner;
 document.getElementById("claimBtn").onclick = claimTokens;
+document.getElementById("ico-buy-btn").onclick = buyTokens;
 
 // ==================== NAVIGATION ====================
 

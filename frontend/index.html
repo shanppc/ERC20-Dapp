@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Z Token DApp</title>
     <link rel="stylesheet" href="css/style.css">
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-J62YFQDQ1C"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-J62YFQDQ1C');
+</script>
 </head>
 <body>
     <div class="container">
@@ -20,8 +29,9 @@
 
         <div class="nav-tabs">
             <button class="nav-tab active" data-page="home">Home</button>
-            <button class="nav-tab" data-page="owner">Owner Panel</button>
             <button class="nav-tab" data-page="faucet">Faucet</button>
+            <button class="nav-tab" data-page="ico">ICO</button>
+            <button class="nav-tab" data-page="owner">Owner Panel</button>
         </div>
 
         <!-- Home Page -->
@@ -127,6 +137,59 @@
             </div>
         </div>
 
+        <!-- Faucet Page -->
+        <div id="faucet-page" class="page">
+            <div class="faucet-banner">
+                <h3>🎁 Free Token Faucet</h3>
+                <p>Claim 20 Z Tokens for testing purposes!</p>
+            </div>
+            <div class="card">
+                <h2>💧 Claim Free Tokens</h2>
+                <div class="action-section">
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Connect your wallet and click the button below to receive 20 free Z Tokens. 
+                        You can claim once a day.
+                    </p>
+                    <button id="claimBtn" class="btn btn-primary" style="font-size: 18px; padding: 15px 30px;">
+                        🎁 Claim 20 Z Tokens
+                    </button>
+                    <div id="claimStatus"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ICO Page -->
+        <div id="ico-page" class="page">
+            <div class="card">
+                <h2>🚀 ICO - Buy Z Tokens</h2>
+                <div class="action-section">
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Purchase Z Tokens directly with ETH through our Initial Coin Offering.
+                    </p>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <p style="margin-bottom: 10px;"><strong>Connected Account:</strong> <span id="ico-account">Not connected</span></p>
+                        <p style="margin-bottom: 0;"><strong>Current Rate:</strong> <span id="ico-rate">Connect wallet to see rate</span></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ico-eth-amount">Enter ETH Amount</label>
+                        <input id="ico-eth-amount" type="number" step="0.001" min="0" placeholder="0.00">
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                        <p style="margin: 0; font-size: 14px; opacity: 0.9;">You will receive:</p>
+                        <p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><span id="ico-z-amount">0</span> Z Tokens</p>
+                    </div>
+
+                    <button id="ico-buy-btn" class="btn btn-primary" style="font-size: 18px; padding: 15px 30px; width: 100%;">
+                        💰 Buy Tokens
+                    </button>
+                    <div id="ico-status"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Owner Page -->
         <div id="owner-page" class="page">
             <div class="card">
@@ -162,27 +225,6 @@
                         <input id="newOwnerAddr" placeholder="0x..." type="text">
                     </div>
                     <button id="newOwnerBtn" class="btn btn-primary">Transfer Ownership</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Faucet Page -->
-        <div id="faucet-page" class="page">
-            <div class="faucet-banner">
-                <h3>🎁 Free Token Faucet</h3>
-                <p>Claim 20 Z Tokens for testing purposes!</p>
-            </div>
-            <div class="card">
-                <h2>💧 Claim Free Tokens</h2>
-                <div class="action-section">
-                    <p style="color: #666; margin-bottom: 20px;">
-                        Connect your wallet and click the button below to receive 20 free Z Tokens. 
-                        You can claim once a day.
-                    </p>
-                    <button id="claimBtn" class="btn btn-primary" style="font-size: 18px; padding: 15px 30px;">
-                        🎁 Claim 20 Z Tokens
-                    </button>
-                    <div id="claimStatus"></div>
                 </div>
             </div>
         </div>
