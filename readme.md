@@ -13,6 +13,8 @@ This project demonstrates end-to-end dApp development including smart contracts,
 
 [Faucet Contract](https://sepolia.etherscan.io/address/0xD232e9afC5931Fbf9026f9357EbDfadd05Eb22Aa#code)
 
+[ICO Contract](https://sepolia.etherscan.io/address/0x07F0a5F68CCc2Eb5198A5Bd4248e4a0b0e8397Af#code)
+
 
 ---
 
@@ -20,7 +22,7 @@ This project demonstrates end-to-end dApp development including smart contracts,
 
 ### ERC-20 Core
 - Transfer tokens
-- Approve & `transferFrom`
+- Approve & transferFrom
 - Check balance
 - Check allowance
 - Burn tokens
@@ -28,6 +30,10 @@ This project demonstrates end-to-end dApp development including smart contracts,
 ### Faucet
 - Claim test tokens
 - Prevent abuse using contract logic
+
+### ICO
+- Calculate tokens 
+- Buy Tokens with ETH
 
 ### dApp Functionality
 - Connect wallet (MetaMask)
