@@ -22,6 +22,7 @@
             <div class="wallet-section">
                 <button id="connectBtn" class="btn btn-primary">Connect MetaMask</button>
                 <div id="accountDisplay" style="display: none;">
+                    <button id="addTokenBtn" class="btn btn-secondary" style="margin-right: 10px;">+ Add Token</button>
                     <div class="wallet-address" id="account"></div>
                 </div>
             </div>
@@ -31,6 +32,7 @@
             <button class="nav-tab active" data-page="home">Home</button>
             <button class="nav-tab" data-page="faucet">Faucet</button>
             <button class="nav-tab" data-page="ico">ICO</button>
+            <button class="nav-tab" data-page="stake">Stake</button>
             <button class="nav-tab" data-page="owner">Owner Panel</button>
         </div>
 
@@ -67,7 +69,7 @@
                     </div>
                     <div class="form-group">
                         <label>Amount</label>
-                        <input id="amount" placeholder="0.0" type="number" step="0.000001">
+                        <input id="amount" placeholder="0.0" type="number" step="1">
                     </div>
                     <button id="sendTxBtn" class="btn btn-primary">Send Transfer</button>
                     <div id="txStatus"></div>
@@ -82,7 +84,7 @@
                         </div>
                         <div class="form-group">
                             <label>Amount</label>
-                            <input id="amountforSpender" placeholder="0.0" type="number" step="0.000001">
+                            <input id="amountforSpender" placeholder="0.0" type="number" step="1">
                         </div>
                     </div>
                     <button id="approveBtn" class="btn btn-primary">Approve</button>
@@ -120,7 +122,7 @@
                         </div>
                         <div class="form-group">
                             <label>Amount</label>
-                            <input id="_amount" placeholder="0.0" type="number" step="0.000001">
+                            <input id="_amount" placeholder="0.0" type="number" step="1">
                         </div>
                     </div>
                     <button id="transferFromBtn" class="btn btn-primary">Transfer From</button>
@@ -130,7 +132,7 @@
                 <div class="action-section">
                     <div class="form-group">
                         <label>Amount to Burn</label>
-                        <input id="burningAmount" placeholder="0.0" type="number" step="0.000001">
+                        <input id="burningAmount" placeholder="0.0" type="number" step="1">
                     </div>
                     <button id="burnBtn" class="btn btn-primary">Burn Tokens</button>
                 </div>
@@ -186,6 +188,77 @@
                         💰 Buy Tokens
                     </button>
                     <div id="ico-status"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stake Page -->
+        <div id="stake-page" class="page">
+            <div class="card">
+                <h2>🔒 Stake Z Tokens</h2>
+                <div class="action-section">
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Stake your Z Tokens to earn rewards. Lock your tokens and earn passive income!
+                    </p>
+                    
+                    <div class="info-grid" style="margin-bottom: 25px;">
+                        <div class="info-item">
+                            <div class="info-label">Connected Account</div>
+                            <div class="info-value" style="font-size: 14px; word-break: break-all;" id="stake-account">Not connected</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Current APY</div>
+                            <div class="info-value"><span id="apyDisplay">0.00</span>%</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">My Staked Amount</div>
+                            <div class="info-value"><span id="stakedDisplay">0.0</span> Z</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Unclaimed Rewards</div>
+                            <div class="info-value"><span id="rewardsDisplay">0.0</span> stZ</div>
+                        </div>
+                    </div>
+
+                    <h3>✅ Step 1: Approve Tokens</h3>
+                    <div class="action-section">
+                        <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                            Before staking, you need to approve the staking contract to spend your tokens.
+                        </p>
+                        <div class="form-group">
+                            <label>Amount to Approve</label>
+                            <input id="amountToApprove" type="number" step="1" placeholder="0.0">
+                        </div>
+                        <button id="staking-approveBtn" class="btn btn-primary">Approve Tokens</button>
+                    </div>
+
+                    <h3>🔒 Step 2: Stake Tokens</h3>
+                    <div class="action-section">
+                        <div class="form-group">
+                            <label>Amount to Stake</label>
+                            <input id="amountToStake" type="number" step="1" placeholder="0.0">
+                        </div>
+                        <button id="stakeBtn" class="btn btn-primary">Stake Tokens</button>
+                    </div>
+
+                    <h3>🎁 Claim Rewards</h3>
+                    <div class="action-section">
+                        <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                            Claim your earned staking rewards at any time.
+                        </p>
+                        <button id="getRewardBtn" class="btn btn-primary">Claim Rewards</button>
+                    </div>
+
+                    <h3>🔓 Unstake Tokens</h3>
+                    <div class="action-section">
+                        <div class="form-group">
+                            <label>Amount to Unstake</label>
+                            <input id="amountToUnStake" type="number" step="1" placeholder="0.0">
+                        </div>
+                        <button id="unStakeBtn" class="btn btn-primary">Unstake Tokens</button>
+                    </div>
+
+                    <div id="stake-status"></div>
                 </div>
             </div>
         </div>
