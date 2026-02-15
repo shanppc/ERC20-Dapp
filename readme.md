@@ -1,6 +1,6 @@
-# ERC-20 dApp – Z Token
+# ERC-20 DeFi dApp – Z Token
 
-A professional ERC-20 decentralized application built on the Ethereum **Sepolia testnet**.  
+A professional ERC-20 Defi application built on the Ethereum **Sepolia testnet**.  
 This project demonstrates end-to-end dApp development including smart contracts, deployment, and frontend interaction using ethers.js.
 
  *Live Demo*  
@@ -8,12 +8,12 @@ This project demonstrates end-to-end dApp development including smart contracts,
 ---
 
 ## 📜 Deployed Smart Contracts (Sepolia)
-
-[Token Contract](https://sepolia.etherscan.io/address/0xE44a188329Dd840c6c4aBe5646376FF2e67c091D#code)
-
-[Faucet Contract](https://sepolia.etherscan.io/address/0xD232e9afC5931Fbf9026f9357EbDfadd05Eb22Aa#code)
-
-[ICO Contract](https://sepolia.etherscan.io/address/0x07F0a5F68CCc2Eb5198A5Bd4248e4a0b0e8397Af#code)
+| Contract                                                                                                    | Description                     |
+| ----------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| 🔹 [Token Contract](https://sepolia.etherscan.io/address/0xE44a188329Dd840c6c4aBe5646376FF2e67c091D#code)   | ERC-20 token implementation     |
+| 🔹 [Faucet Contract](https://sepolia.etherscan.io/address/0xD232e9afC5931Fbf9026f9357EbDfadd05Eb22Aa#code)  | Controlled token distribution   |
+| 🔹 [ICO Contract](https://sepolia.etherscan.io/address/0x07F0a5F68CCc2Eb5198A5Bd4248e4a0b0e8397Af#code)     | Token sale mechanism            |
+| 🔹 [Staking Contract](https://sepolia.etherscan.io/address/0xC3c313E4a43F218856264b50d47e5911635bc255#code) | Synthetix-style staking rewards |
 
 
 ---
@@ -23,8 +23,7 @@ This project demonstrates end-to-end dApp development including smart contracts,
 ### ERC-20 Core
 - Transfer tokens
 - Approve & transferFrom
-- Check balance
-- Check allowance
+- Check balance & allowance
 - Burn tokens
 
 ### Faucet
@@ -32,8 +31,16 @@ This project demonstrates end-to-end dApp development including smart contracts,
 - Prevent abuse using contract logic
 
 ### ICO
-- Calculate tokens 
+- Dynamic token calculation
 - Buy Tokens with ETH
+
+### Staking (Synthetix Model)
+
+- Stake ERC-20 tokens
+- Earn reward tokens
+- Claim rewards anytime
+- APR calculation
+- Unstake anytime
 
 ### dApp Functionality
 - Connect wallet (MetaMask)
