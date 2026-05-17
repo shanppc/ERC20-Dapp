@@ -14,3 +14,22 @@ export const ERC20_ABI = [
     "function unpause() returns(bool)",
     "function transferOwnership(address newOnwer)"
 ];
+
+export const FauctContract_ABI = [
+    "function requestTokens() returns(bool)",
+];
+
+export const ICO_ABI = [
+    "function buyTokens() external payable",
+    "function rate() public view returns(uint256)"
+];
+
+export const STAKING_ABI = [
+    "function stake(uint256 amount)",
+    "function unStake(uint256 amount)",
+    "function getReward()",
+    "function stakeBalance(address) view returns (uint256)",
+    "function earned(address) view returns(uint256)",
+    "function rewardPerDay() view returns (uint256)",
+    "function totalStakedTokens() view returns (uint256)"
+];

@@ -1,5 +1,4 @@
-import { ERC20_ABI } from "./Erc20abi.js";
-import { FauctContract_ABI } from "./FauctContractAbi.js";
+import { ERC20_ABI, FauctContract_ABI, ICO_ABI, STAKING_ABI } from "./ABIs.js";
 
 let provider;
 let signer;
@@ -15,20 +14,7 @@ const ICO_ADDRESS = "0x07F0a5F68CCc2Eb5198A5Bd4248e4a0b0e8397Af";
 const STAKING_ADDRESS = "0xC3c313E4a43F218856264b50d47e5911635bc255";
 const SEPOLIA_CHAIN_ID = '0xaa36a7';
 
-const ICO_ABI = [
-    "function buyTokens() external payable",
-    "function rate() public view returns(uint256)"
-];
 
-const STAKING_ABI = [
-    "function stake(uint256 amount)",
-    "function unStake(uint256 amount)",
-    "function getReward()",
-    "function stakeBalance(address) view returns (uint256)",
-    "function earned(address) view returns(uint256)",
-    "function rewardPerDay() view returns (uint256)",
-    "function totalStakedTokens() view returns (uint256)"
-];
 
 const TOKEN_IMAGE = "../assets/z-token-img.png"; // will add later
 
